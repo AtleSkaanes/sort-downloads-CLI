@@ -8,7 +8,7 @@ use std::{
 use byte_unit::Byte;
 use filesize::file_real_size;
 
-use crate::{command, config, data, log};
+use crate::{command, data, log};
 
 pub fn start_sort(cmd: command::CommandOpts) {
     log::info("Starting sort...");
