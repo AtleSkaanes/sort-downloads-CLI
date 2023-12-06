@@ -23,7 +23,7 @@ pub struct CommandOpts {
     pub remove_unknown: bool,
     pub no_del: bool,
     pub no_sort: bool,
-    pub sort_table: HashMap<String, PathBuf>,
+    pub sort_table: HashMap<String, Vec<PathBuf>>,
 }
 
 /// A program that sorts or deletes files in your downloads folder, or a custom folder
