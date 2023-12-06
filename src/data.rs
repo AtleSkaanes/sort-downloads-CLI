@@ -10,7 +10,13 @@ use crate::log;
 pub fn get_downloads_path() -> Option<PathBuf> {
     let binding = UserDirs::new();
     match &binding {
-        Some(user_dirs) => Some(user_dirs.download_dir().unwrap().to_path_buf()),
+        Some(user_dirs) => match user_dirs.download_dir() {
+            Some(dir) => Some(dir.to_path_buf()),
+            None => {
+                log::error("No valid downloads directory exists");
+                panic!("No valid downloads directory exists");
+            }
+        },
         None => None,
     }
 }
