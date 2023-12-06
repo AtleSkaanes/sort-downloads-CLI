@@ -89,14 +89,32 @@ pub fn start_sort(cmd: command::CommandOpts) {
 
         // Sort
         if !cmd.no_sort {
-            if let Some(location) = file_matches_hashmap(file.clone(), &cmd.sort_table) {
+            if let Some(locations) = file_matches_hashmap(file.clone(), &cmd.sort_table) {
+                let mut dir = locations[0].clone();
+                if locations.len() > 1 {
+                    let mut got_answer = false;
+                    println!("\n {} has multiple end-locations, pick one.", filename);
+                    for (i, dir) in locations.iter().enumerate() {
+                        println!("{} - {}", i, dir.to_str().unwrap_or("[NO NAME]"));
+                    }
+                    while !got_answer {
+                        let answer =
+                            log::get_input(&format!("Select location [0-{}]", locations.len() - 1));
+                        if answer.parse::<usize>().unwrap_or(locations.len()) < locations.len() {
+                            got_answer = true;
+                            dir = locations[answer.parse::<usize>().unwrap()].clone();
+                        } else {
+                            log::error("Not valid answer");
+                        }
+                    }
+                }
                 // If given end-location exists
-                if !location.exists() {
+                if !dir.exists() {
                     log::error(&format!(
                         "Location doesn't exist: {}, trying to create...",
-                        location.to_str().unwrap()
+                        dir.to_str().unwrap()
                     ));
-                    match fs::create_dir_all(location.clone()) {
+                    match fs::create_dir_all(dir.clone()) {
                         Ok(()) => log::info("Successfully created location!"),
                         Err(e) => {
                             log::error(&format!("While creating location : {}", e));
@@ -106,15 +124,12 @@ pub fn start_sort(cmd: command::CommandOpts) {
                 }
 
                 // Move file to new location
-                match fs::rename(
-                    file.clone(),
-                    location.join(file.clone().file_name().unwrap()),
-                ) {
+                match fs::rename(file.clone(), dir.join(file.clone().file_name().unwrap())) {
                     Ok(()) => {
                         log::info(&format!(
                             "Moved {} to {}",
                             file.clone().file_name().unwrap().to_str().unwrap(),
-                            location.to_str().unwrap()
+                            dir.to_str().unwrap()
                         ));
                         sort_count += 1;
                         sort_size += filesize;
@@ -123,7 +138,7 @@ pub fn start_sort(cmd: command::CommandOpts) {
                     Err(e) => log::error(&format!(
                         "While moving {} to {}: {}",
                         file.clone().file_name().unwrap().to_str().unwrap(),
-                        location.to_str().unwrap(),
+                        dir.to_str().unwrap(),
                         e.to_string()
                     )),
                 }
@@ -168,7 +183,10 @@ fn file_matches_vec(file: PathBuf, check: &Vec<String>) -> bool {
     false
 }
 
-fn file_matches_hashmap(file: PathBuf, check: &HashMap<String, PathBuf>) -> Option<PathBuf> {
+fn file_matches_hashmap(
+    file: PathBuf,
+    check: &HashMap<String, Vec<PathBuf>>,
+) -> Option<Vec<PathBuf>> {
     let filename = file.file_name().unwrap().to_str().unwrap();
     let fileext = file
         .extension()
@@ -181,7 +199,7 @@ fn file_matches_hashmap(file: PathBuf, check: &HashMap<String, PathBuf>) -> Opti
         }
     }
     if let Some(dir) = check.get(&(".".to_string() + fileext)) {
-        return Some(dir.to_path_buf());
+        return Some(dir.to_vec());
     }
     None
 }
