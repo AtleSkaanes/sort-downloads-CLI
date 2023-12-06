@@ -63,9 +63,9 @@ pub fn fill_command_opts(args: CliArgs) -> CommandOpts {
 
     let cfg = config::get_config();
 
-    cmd.dir = args
-        .directory
-        .unwrap_or(data::get_downloads_path().expect("Should have a valid downloads directory"));
+    cmd.dir = args.directory.unwrap_or_else(|| {
+        data::get_downloads_path().expect("Should have a valid downloads directory")
+    });
 
     cmd.keep_prefixes = vec![];
     cmd.keep_extensions = vec![];
