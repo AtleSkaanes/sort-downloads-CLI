@@ -1,9 +1,4 @@
-use std::{
-    collections::HashMap,
-    ffi::OsStr,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, ffi::OsStr, fs, path::PathBuf};
 
 use byte_unit::Byte;
 use filesize::file_real_size;
@@ -84,7 +79,6 @@ pub fn start_sort(cmd: command::CommandOpts) {
                     }
                 }
             }
-        } else {
         }
 
         // Sort
