@@ -12,3 +12,4 @@ ron = "0.8.1"
 clap = { version = "4.0.0", features = ["derive"] }
 colored = "2"
 byte-unit = "5.0.3"
+filesize = "0.2.0"

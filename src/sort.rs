@@ -2,11 +2,11 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     fs,
-    os::windows::fs::MetadataExt,
     path::{Path, PathBuf},
 };
 
 use byte_unit::Byte;
+use filesize::file_real_size;
 
 use crate::{command, config, data, log};
 
@@ -26,10 +26,7 @@ pub fn start_sort(cmd: command::CommandOpts) {
             .to_str()
             .unwrap();
 
-        let filesize = file
-            .metadata()
-            .expect("File should have valid metadata")
-            .file_size();
+        let filesize = file_real_size(file.clone()).unwrap_or(0);
 
         // if file is matched by keep, don't do anything to it :)
         if file_matches_vec(file.clone(), &cmd.keep_prefixes)
