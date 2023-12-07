@@ -50,7 +50,7 @@ pub struct CliArgs {
     #[arg(long)]
     pub dont_remove: bool,
 
-    /// Remove all files not specified in --keep (or in sort.ron if set to sort)
+    /// Remove all files not specified in --keep (or in config.ron if set to sort)
     #[arg(long)]
     pub remove_unknown: bool,
 
@@ -80,11 +80,18 @@ pub fn fill_command_opts(args: CliArgs) -> CommandOpts {
             cmd.keep_prefixes.push(item);
         }
     }
-    for item in cfg.white_list {
+    for item in cfg.keep {
         if item.starts_with(".") {
             cmd.keep_extensions.push(item);
         } else {
             cmd.keep_prefixes.push(item);
+        }
+    }
+    for item in cfg.remove {
+        if item.starts_with(".") {
+            cmd.del_extensions.push(item);
+        } else {
+            cmd.del_prefixes.push(item);
         }
     }
     for item in args.remove.unwrap_or(vec![]) {
@@ -96,6 +103,8 @@ pub fn fill_command_opts(args: CliArgs) -> CommandOpts {
     }
 
     cmd.safe_mode = cfg.safe_mode;
+
+    cmd.remove_unknown = args.remove_unknown;
 
     cmd.no_del = args.dont_remove;
     cmd.no_sort = args.dont_sort;
