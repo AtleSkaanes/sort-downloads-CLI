@@ -8,6 +8,11 @@ use crate::{command, config, data, log};
 pub fn start_sort(cmd: command::CommandOpts) {
     log::info("Starting sort...");
 
+    log::debug(&format!(
+        "Set to sort directory: {}",
+        cmd.dir.to_str().unwrap_or("[NO NAME]")
+    ));
+
     let mut sort_count = 0;
     let mut del_count = 0;
 
@@ -22,6 +27,11 @@ pub fn start_sort(cmd: command::CommandOpts) {
             .unwrap();
 
         let filesize = file_real_size(file.clone()).unwrap_or(0);
+
+        let to_delete = file_matches_vec(file.clone(), &cmd.del_prefixes)
+            || file_matches_vec(file.clone(), &cmd.del_extensions);
+
+        let to_sort = file_matches_hashmap(file.clone(), &cmd.sort_table).is_some();
 
         // if file is matched by keep, don't do anything to it :)
         if file_matches_vec(file.clone(), &cmd.keep_prefixes)
@@ -39,9 +49,7 @@ pub fn start_sort(cmd: command::CommandOpts) {
 
         // Remove
         if !cmd.no_del {
-            if file_matches_vec(file.clone(), &cmd.del_prefixes)
-                || file_matches_vec(file.clone(), &cmd.del_extensions)
-            {
+            if to_delete || cmd.remove_unknown && !to_sort {
                 if cmd.safe_mode {
                     let mut got_answer: bool = false;
                     while !got_answer {

@@ -33,7 +33,8 @@ fn get_default_config() -> ConfigOpts {
     };
     ConfigOpts {
         sorting_locations: HashMap::from([(".png".to_string(), vec![dir.to_path_buf()])]),
-        white_list: vec![],
+        keep: vec![],
+        remove: vec![],
         safe_mode: true,
     }
 }
@@ -45,7 +46,8 @@ pub struct ConfigOpts {
     //         ".png" matches "image.png"
     //         "d-" matches "d-text.txt"
     pub sorting_locations: HashMap<String, Vec<PathBuf>>,
-    pub white_list: Vec<String>,
+    pub keep: Vec<String>,
+    pub remove: Vec<String>,
     // Safe mode asks before deleting any file
     pub safe_mode: bool,
 }
